@@ -18,7 +18,7 @@ export const TasksPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pt-2">
         <div>
-          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tighter text-slate-900">
+          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tighter text-white">
             Tasks
           </h1>
           <p className="text-slate-400 text-base sm:text-lg font-medium ml-1 mt-1">
@@ -29,7 +29,7 @@ export const TasksPage: React.FC = () => {
         <button
           id="tasks-page-create-btn"
           onClick={handleOpenCreate}
-          className="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm px-6 py-3 rounded-full shadow-lg shadow-indigo-200 transition-all self-start md:self-auto active:scale-95"
+          className="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm px-6 py-3 rounded-full shadow-lg shadow-indigo-500/20 transition-all self-start md:self-auto active:scale-95"
         >
           <Plus className="w-4 h-4" />
           <span>New Task</span>
@@ -50,11 +50,11 @@ export const TasksPage: React.FC = () => {
               <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Loading tasks...</p>
             </div>
           ) : tasks.length === 0 ? (
-            <div className="bg-white rounded-3xl p-16 border border-slate-200/80 text-center shadow-xs">
-              <div className="w-16 h-16 rounded-3xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto mb-4 font-black">
+            <div className="bg-slate-900 rounded-3xl p-16 border border-slate-800 text-center shadow-xs">
+              <div className="w-16 h-16 rounded-3xl bg-indigo-950 text-indigo-400 flex items-center justify-center mx-auto mb-4 font-black">
                 <Inbox className="w-8 h-8" />
               </div>
-              <h3 className="text-xl font-black text-slate-900 mb-1 tracking-tight">No tasks found</h3>
+              <h3 className="text-xl font-black text-white mb-1 tracking-tight">No tasks found</h3>
               <p className="text-xs sm:text-sm text-slate-400 max-w-sm mx-auto mb-6 leading-relaxed font-medium">
                 {filters.search || filters.status !== 'All' || filters.priority !== 'All' || filters.category !== 'All'
                   ? 'Try adjusting your filters or search terms to find what you are looking for.'
@@ -62,7 +62,7 @@ export const TasksPage: React.FC = () => {
               </p>
               <button
                 onClick={handleOpenCreate}
-                className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-bold px-6 py-3 rounded-full shadow-md shadow-indigo-100 transition-all active:scale-95"
+                className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm font-bold px-6 py-3 rounded-full shadow-md shadow-indigo-500/20 transition-all active:scale-95"
               >
                 <Plus className="w-4 h-4" />
                 <span>Create New Task</span>

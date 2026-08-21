@@ -96,12 +96,12 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onViewDetails, compact
     <div
       id={`task-card-${task.id}`}
       onClick={handleCardClick}
-      className={`group bg-white rounded-2xl border transition-all duration-150 hover:shadow-md cursor-pointer relative ${
+      className={`group bg-slate-900 rounded-2xl border transition-all duration-150 hover:shadow-lg cursor-pointer relative ${
         task.status === 'Completed'
-          ? 'border-slate-200/60 bg-slate-50/40 opacity-80'
+          ? 'border-slate-800/60 bg-slate-950/40 opacity-75'
           : isOverdue
-          ? 'border-rose-200 hover:border-rose-300 ring-1 ring-rose-100 shadow-2xs'
-          : 'border-slate-100 hover:border-indigo-200 shadow-2xs'
+          ? 'border-rose-900/60 hover:border-rose-700 bg-slate-900 ring-1 ring-rose-900/30'
+          : 'border-slate-800 hover:border-indigo-500/60'
       } ${compact ? 'p-3.5' : 'p-5'}`}
     >
       <div className="flex items-start justify-between gap-3">
@@ -111,10 +111,10 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onViewDetails, compact
           <div
             className={`w-11 h-11 rounded-xl flex items-center justify-center font-black text-sm shrink-0 select-none ${
               task.status === 'Completed'
-                ? 'bg-emerald-100 text-emerald-700'
+                ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-800/60'
                 : isOverdue
-                ? 'bg-rose-100 text-rose-700'
-                : 'bg-indigo-100 text-indigo-700'
+                ? 'bg-rose-950/80 text-rose-300 border border-rose-800/60'
+                : 'bg-indigo-950/80 text-indigo-300 border border-indigo-800/60'
             }`}
           >
             {getCatInitials(task.category || 'Task')}
@@ -125,8 +125,8 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onViewDetails, compact
               <h3
                 className={`font-bold text-base leading-snug tracking-tight transition-colors truncate ${
                   task.status === 'Completed'
-                    ? 'line-through text-slate-400'
-                    : 'text-slate-900 group-hover:text-indigo-600'
+                    ? 'line-through text-slate-500'
+                    : 'text-white group-hover:text-indigo-400'
                 }`}
               >
                 {task.title}
@@ -147,13 +147,13 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onViewDetails, compact
             onClick={handleStatusToggle}
             className={`p-1 rounded-lg transition-transform active:scale-90 ${
               task.status === 'Completed'
-                ? 'text-emerald-500 hover:text-emerald-600'
-                : 'text-slate-300 hover:text-indigo-600'
+                ? 'text-emerald-400 hover:text-emerald-300'
+                : 'text-slate-600 hover:text-indigo-400'
             }`}
             title={`Status: ${task.status}. Click to change.`}
           >
             {task.status === 'Completed' ? (
-              <CheckCircle2 className="w-5 h-5 fill-emerald-50" />
+              <CheckCircle2 className="w-5 h-5 fill-emerald-950 text-emerald-400" />
             ) : (
               <Circle className="w-5 h-5" />
             )}
@@ -163,7 +163,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onViewDetails, compact
             <button
               id={`task-menu-btn-${task.id}`}
               onClick={() => setShowMenu(!showMenu)}
-              className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+              className="p-1 rounded-lg text-slate-500 hover:text-slate-200 hover:bg-slate-800 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
               aria-label="Task options"
             >
               <MoreVertical className="w-4 h-4" />
@@ -172,11 +172,11 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onViewDetails, compact
             {showMenu && (
               <>
                 <div className="fixed inset-0 z-20" onClick={() => setShowMenu(false)} />
-                <div className="absolute right-0 mt-1 w-36 bg-white rounded-xl shadow-xl border border-slate-100 py-1.5 z-30 text-xs font-bold">
+                <div className="absolute right-0 mt-1 w-36 bg-slate-900 rounded-xl shadow-2xl border border-slate-800 py-1.5 z-30 text-xs font-bold text-slate-200">
                   <button
                     id={`edit-task-action-${task.id}`}
                     onClick={handleEdit}
-                    className="w-full flex items-center gap-2 px-3 py-1.5 text-left text-slate-700 hover:bg-slate-50"
+                    className="w-full flex items-center gap-2 px-3 py-1.5 text-left text-slate-200 hover:bg-slate-800 hover:text-white"
                   >
                     <Edit2 className="w-3.5 h-3.5 text-slate-400" />
                     <span>Edit Task</span>
@@ -184,9 +184,9 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onViewDetails, compact
                   <button
                     id={`delete-task-action-${task.id}`}
                     onClick={handleDelete}
-                    className="w-full flex items-center gap-2 px-3 py-1.5 text-left text-rose-600 hover:bg-rose-50"
+                    className="w-full flex items-center gap-2 px-3 py-1.5 text-left text-rose-400 hover:bg-rose-950/40"
                   >
-                    <Trash2 className="w-3.5 h-3.5 text-rose-500" />
+                    <Trash2 className="w-3.5 h-3.5 text-rose-400" />
                     <span>Delete Task</span>
                   </button>
                 </div>
@@ -197,7 +197,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onViewDetails, compact
       </div>
 
       {/* Card Footer: Priority, Due Date & Status */}
-      <div className="mt-3.5 pt-3 border-t border-slate-100 flex items-center justify-between gap-3 text-xs">
+      <div className="mt-3.5 pt-3 border-t border-slate-800/80 flex items-center justify-between gap-3 text-xs">
         {/* Priority & Category */}
         <div className="flex items-center gap-3">
           <p className={`font-black uppercase tracking-wider text-[11px] ${priorityStyles[task.priority]?.text || 'text-slate-400'}`}>
@@ -205,8 +205,8 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onViewDetails, compact
           </p>
 
           <div className="flex items-center gap-1.5">
-            <span className={`w-2 h-2 rounded-full ${statusColors[task.status]?.dot || 'bg-slate-400'}`} />
-            <span className="font-bold text-slate-600 text-xs">{task.status}</span>
+            <span className={`w-2 h-2 rounded-full ${statusColors[task.status]?.dot || 'bg-slate-500'}`} />
+            <span className="font-bold text-slate-400 text-xs">{task.status}</span>
           </div>
         </div>
 
@@ -214,19 +214,19 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onViewDetails, compact
         <div
           className={`font-semibold text-xs flex items-center gap-1.5 ${
             task.status === 'Completed'
-              ? 'text-slate-400'
+              ? 'text-slate-500'
               : isOverdue
-              ? 'text-rose-600 font-bold'
+              ? 'text-rose-400 font-bold'
               : isDueToday
-              ? 'text-amber-600 font-bold'
-              : 'text-slate-600'
+              ? 'text-amber-400 font-bold'
+              : 'text-slate-400'
           }`}
           title={isOverdue ? 'This task is overdue!' : `Due ${task.dueDate}`}
         >
           {isOverdue ? (
-            <AlertCircle className="w-3.5 h-3.5 text-rose-500" />
+            <AlertCircle className="w-3.5 h-3.5 text-rose-400" />
           ) : (
-            <Clock className="w-3.5 h-3.5 text-slate-400" />
+            <Clock className="w-3.5 h-3.5 text-slate-500" />
           )}
           <span>{formatDueDate(task.dueDate)}</span>
         </div>

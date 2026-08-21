@@ -82,24 +82,24 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({ showViewToggle = true 
     filters.category !== 'All';
 
   return (
-    <div id="task-filters-bar" className="space-y-4 bg-white p-5 rounded-3xl border border-slate-200/80 shadow-xs">
+    <div id="task-filters-bar" className="space-y-4 bg-slate-900 p-5 rounded-3xl border border-slate-800 shadow-xs">
       {/* Top row: Search input, Sort, View Toggle, Create Button */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         {/* Search Bar */}
         <div className="relative flex-1 min-w-[220px]">
-          <Search className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-slate-500 absolute left-4 top-1/2 -translate-y-1/2" />
           <input
             id="task-search-input"
             type="text"
             placeholder="Search tasks..."
             value={filters.search}
             onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-            className="w-full pl-10 pr-9 py-2.5 bg-slate-50 border border-slate-200 rounded-full text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium"
+            className="w-full pl-10 pr-9 py-2.5 bg-slate-800/80 border border-slate-700 rounded-full text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium"
           />
           {filters.search && (
             <button
               onClick={() => setFilters(prev => ({ ...prev, search: '' }))}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5"
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 p-0.5"
             >
               <X className="w-3.5 h-3.5" />
             </button>
@@ -114,10 +114,10 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({ showViewToggle = true 
               id="priority-filter-select"
               value={filters.priority}
               onChange={(e) => setFilters(prev => ({ ...prev, priority: e.target.value as any }))}
-              className="bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold rounded-full px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 cursor-pointer"
+              className="bg-slate-800 border border-slate-700 text-slate-200 text-xs font-bold rounded-full px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 cursor-pointer"
             >
               {priorityOptions.map(p => (
-                <option key={p.id} value={p.id}>{p.label}</option>
+                <option key={p.id} value={p.id} className="bg-slate-900 text-slate-200">{p.label}</option>
               ))}
             </select>
           </div>
@@ -129,11 +129,11 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({ showViewToggle = true 
                 id="category-filter-select"
                 value={filters.category}
                 onChange={(e) => setFilters(prev => ({ ...prev, category: e.target.value }))}
-                className="bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold rounded-full px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 cursor-pointer"
+                className="bg-slate-800 border border-slate-700 text-slate-200 text-xs font-bold rounded-full px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 cursor-pointer"
               >
-                <option value="All">All Categories</option>
+                <option value="All" className="bg-slate-900 text-slate-200">All Categories</option>
                 {categories.map(cat => (
-                  <option key={cat} value={cat}>{cat}</option>
+                  <option key={cat} value={cat} className="bg-slate-900 text-slate-200">{cat}</option>
                 ))}
               </select>
             </div>
@@ -145,25 +145,25 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({ showViewToggle = true 
               id="task-sort-select"
               value={currentSortValue}
               onChange={handleSortChange}
-              className="bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold rounded-full px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 cursor-pointer"
+              className="bg-slate-800 border border-slate-700 text-slate-200 text-xs font-bold rounded-full px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 cursor-pointer"
             >
               {sortOptions.map(opt => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                <option key={opt.value} value={opt.value} className="bg-slate-900 text-slate-200">{opt.label}</option>
               ))}
             </select>
           </div>
 
           {/* View Mode Toggle (List vs Kanban) */}
           {showViewToggle && (
-            <div className="flex items-center bg-slate-100 p-1 rounded-full border border-slate-200/60">
+            <div className="flex items-center bg-slate-800 p-1 rounded-full border border-slate-700">
               <button
                 id="view-mode-list-btn"
                 onClick={() => setViewMode('list')}
                 title="List View"
                 className={`p-1.5 rounded-full transition-all ${
                   viewMode === 'list'
-                    ? 'bg-white text-indigo-600 shadow-xs'
-                    : 'text-slate-400 hover:text-slate-800'
+                    ? 'bg-indigo-600 text-white shadow-xs'
+                    : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
                 <List className="w-4 h-4" />
@@ -174,8 +174,8 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({ showViewToggle = true 
                 title="Kanban Board View"
                 className={`p-1.5 rounded-full transition-all ${
                   viewMode === 'kanban'
-                    ? 'bg-white text-indigo-600 shadow-xs'
-                    : 'text-slate-400 hover:text-slate-800'
+                    ? 'bg-indigo-600 text-white shadow-xs'
+                    : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
                 <Columns3 className="w-4 h-4" />
@@ -190,7 +190,7 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({ showViewToggle = true 
               setSelectedTask(null);
               setIsCreateModalOpen(true);
             }}
-            className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2.5 rounded-full shadow-md shadow-indigo-100 transition-all active:scale-95"
+            className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2.5 rounded-full shadow-md shadow-indigo-500/20 transition-all active:scale-95"
           >
             <Plus className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Add Task</span>
@@ -199,7 +199,7 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({ showViewToggle = true 
       </div>
 
       {/* Bottom row: Status Filter Tabs & Active filter indicator */}
-      <div className="flex items-center justify-between gap-2 pt-3 border-t border-slate-100 overflow-x-auto">
+      <div className="flex items-center justify-between gap-2 pt-3 border-t border-slate-800 overflow-x-auto">
         <div className="flex items-center gap-2 min-w-max">
           {statusOptions.map((opt) => {
             const isActive = filters.status === opt.id;
@@ -210,8 +210,8 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({ showViewToggle = true 
                 onClick={() => setFilters(prev => ({ ...prev, status: opt.id }))}
                 className={`px-4 py-2 rounded-full text-xs font-black tracking-tight transition-all ${
                   isActive
-                    ? 'bg-slate-900 text-white shadow-xs'
-                    : 'text-slate-400 hover:bg-slate-100 hover:text-slate-800'
+                    ? 'bg-slate-800 text-white border border-slate-700 shadow-xs'
+                    : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200'
                 }`}
               >
                 {opt.label}
@@ -224,7 +224,7 @@ export const TaskFilters: React.FC<TaskFiltersProps> = ({ showViewToggle = true 
           <button
             id="clear-filters-btn"
             onClick={handleClearFilters}
-            className="text-xs text-rose-600 hover:text-rose-700 font-bold flex items-center gap-1 hover:underline min-w-max ml-2"
+            className="text-xs text-rose-400 hover:text-rose-300 font-bold flex items-center gap-1 hover:underline min-w-max ml-2"
           >
             <X className="w-3.5 h-3.5" />
             <span>Reset filters</span>

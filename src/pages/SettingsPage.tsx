@@ -121,10 +121,10 @@ export const SettingsPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-8 max-w-4xl mx-auto pb-12">
+    <div className="space-y-8 max-w-4xl mx-auto pb-12 font-sans">
       {/* Header */}
       <div className="pt-2">
-        <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tighter text-slate-900">
+        <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tighter text-white">
           Settings
         </h1>
         <p className="text-slate-400 text-base sm:text-lg font-medium ml-1 mt-1">
@@ -133,13 +133,13 @@ export const SettingsPage: React.FC = () => {
       </div>
 
       {/* Main Profile Settings Card */}
-      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-xs space-y-6">
-        <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
-          <div className="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-black">
+      <div className="bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-xs space-y-6">
+        <div className="flex items-center gap-3 pb-4 border-b border-slate-800">
+          <div className="w-10 h-10 rounded-2xl bg-indigo-950 text-indigo-400 flex items-center justify-center font-black">
             <User className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-lg font-black text-slate-900 tracking-tight">Profile Information</h2>
+            <h2 className="text-lg font-black text-white tracking-tight">Profile Information</h2>
             <p className="text-xs text-slate-400 font-medium">Update your display avatar and personal name</p>
           </div>
         </div>
@@ -147,7 +147,7 @@ export const SettingsPage: React.FC = () => {
         <form onSubmit={handleProfileSave} className="space-y-6">
           {/* Avatar selection */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wider">
+            <label className="block text-xs font-bold text-slate-300 mb-2 uppercase tracking-wider">
               Avatar Selection
             </label>
             <div className="flex items-center gap-3 flex-wrap">
@@ -158,8 +158,8 @@ export const SettingsPage: React.FC = () => {
                   onClick={() => setActiveAvatar(url)}
                   className={`w-14 h-14 rounded-2xl overflow-hidden border-2 transition-all p-0.5 ${
                     activeAvatar === url
-                      ? 'border-indigo-600 ring-2 ring-indigo-200 shadow-md scale-105'
-                      : 'border-slate-200 hover:border-slate-400'
+                      ? 'border-indigo-500 ring-2 ring-indigo-500/30 shadow-md scale-105'
+                      : 'border-slate-700 hover:border-slate-500'
                   }`}
                 >
                   <img
@@ -176,7 +176,7 @@ export const SettingsPage: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Name */}
             <div>
-              <label htmlFor="settings-name-input" className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
+              <label htmlFor="settings-name-input" className="block text-xs font-bold text-slate-300 mb-1.5 uppercase tracking-wider">
                 Full Name
               </label>
               <input
@@ -185,60 +185,60 @@ export const SettingsPage: React.FC = () => {
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-full text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 font-medium"
+                className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-full text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 font-medium"
               />
             </div>
 
             {/* Email (Read-only) */}
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
-                Email Address <span className="text-slate-400 font-normal lowercase">(read-only)</span>
+              <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase tracking-wider">
+                Email Address <span className="text-slate-500 font-normal lowercase">(read-only)</span>
               </label>
               <input
                 type="email"
                 disabled
                 value={user?.email || ''}
-                className="w-full px-4 py-3 bg-slate-100 border border-slate-200 rounded-full text-sm text-slate-500 cursor-not-allowed font-medium"
+                className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-full text-sm text-slate-500 cursor-not-allowed font-medium"
               />
             </div>
           </div>
 
           {/* Change Password Section */}
-          <div className="pt-5 border-t border-slate-100 space-y-4">
-            <h3 className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+          <div className="pt-5 border-t border-slate-800 space-y-4">
+            <h3 className="text-xs font-black text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
               <Lock className="w-3.5 h-3.5 text-slate-400" />
               <span>Change Password</span>
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <label className="block text-[11px] font-bold text-slate-600 mb-1">Current Password</label>
+                <label className="block text-[11px] font-bold text-slate-400 mb-1">Current Password</label>
                 <input
                   type="password"
                   placeholder="••••••••"
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-full text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 font-medium"
+                  className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-full text-xs text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 font-medium"
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-bold text-slate-600 mb-1">New Password</label>
+                <label className="block text-[11px] font-bold text-slate-400 mb-1">New Password</label>
                 <input
                   type="password"
                   placeholder="Min 6 characters"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-full text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 font-medium"
+                  className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-full text-xs text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 font-medium"
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-bold text-slate-600 mb-1">Confirm Password</label>
+                <label className="block text-[11px] font-bold text-slate-400 mb-1">Confirm Password</label>
                 <input
                   type="password"
                   placeholder="Repeat new password"
                   value={confirmNewPassword}
                   onChange={(e) => setConfirmNewPassword(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-full text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 font-medium"
+                  className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-full text-xs text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 font-medium"
                 />
               </div>
             </div>
@@ -249,7 +249,7 @@ export const SettingsPage: React.FC = () => {
               id="save-profile-btn"
               type="submit"
               disabled={isSaving}
-              className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-6 py-3 rounded-full shadow-md shadow-indigo-100 transition-all active:scale-95 disabled:opacity-50"
+              className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs px-6 py-3 rounded-full shadow-md shadow-indigo-500/20 transition-all active:scale-95 disabled:opacity-50"
             >
               <Save className="w-3.5 h-3.5" />
               <span>{isSaving ? 'Saving...' : 'Save Changes'}</span>
@@ -261,13 +261,13 @@ export const SettingsPage: React.FC = () => {
       {/* Workspace Tools & Data Export */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Data Export */}
-        <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs space-y-4">
+        <div className="bg-slate-900 rounded-3xl p-6 border border-slate-800 shadow-xs space-y-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-black">
+            <div className="w-10 h-10 rounded-2xl bg-emerald-950 text-emerald-400 flex items-center justify-center font-black">
               <Download className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-bold text-base text-slate-900 tracking-tight">Export Task Data</h3>
+              <h3 className="font-bold text-base text-white tracking-tight">Export Task Data</h3>
               <p className="text-xs text-slate-400 font-medium">Download your workspace records</p>
             </div>
           </div>
@@ -276,14 +276,14 @@ export const SettingsPage: React.FC = () => {
             <button
               id="export-json-btn"
               onClick={handleExportJSON}
-              className="flex-1 py-2.5 px-4 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-full text-xs font-bold text-slate-700 transition-colors text-center"
+              className="flex-1 py-2.5 px-4 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-full text-xs font-bold text-slate-200 transition-colors text-center"
             >
               Export JSON
             </button>
             <button
               id="export-csv-btn"
               onClick={handleExportCSV}
-              className="flex-1 py-2.5 px-4 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-full text-xs font-bold text-slate-700 transition-colors text-center"
+              className="flex-1 py-2.5 px-4 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-full text-xs font-bold text-slate-200 transition-colors text-center"
             >
               Export CSV
             </button>
@@ -291,13 +291,13 @@ export const SettingsPage: React.FC = () => {
         </div>
 
         {/* Workspace Starter Seed */}
-        <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs space-y-4">
+        <div className="bg-slate-900 rounded-3xl p-6 border border-slate-800 shadow-xs space-y-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-black">
+            <div className="w-10 h-10 rounded-2xl bg-indigo-950 text-indigo-400 flex items-center justify-center font-black">
               <Database className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-bold text-base text-slate-900 tracking-tight">Sample Data</h3>
+              <h3 className="font-bold text-base text-white tracking-tight">Sample Data</h3>
               <p className="text-xs text-slate-400 font-medium">Load starter demo tasks</p>
             </div>
           </div>
@@ -306,7 +306,7 @@ export const SettingsPage: React.FC = () => {
             <button
               id="seed-tasks-btn"
               onClick={() => seedDemoTasks()}
-              className="w-full py-2.5 px-4 bg-slate-50 hover:bg-indigo-50 hover:text-indigo-700 border border-slate-200 rounded-full text-xs font-bold text-slate-700 transition-colors"
+              className="w-full py-2.5 px-4 bg-slate-800 hover:bg-indigo-950/80 hover:text-indigo-300 border border-slate-700 rounded-full text-xs font-bold text-slate-200 transition-colors"
             >
               Load Sample Tasks
             </button>
@@ -315,15 +315,15 @@ export const SettingsPage: React.FC = () => {
       </div>
 
       {/* Logout Action Bar */}
-      <div className="bg-rose-50 border border-rose-200 rounded-3xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-rose-950/40 border border-rose-800/60 rounded-3xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h3 className="font-black text-base text-rose-950 tracking-tight">Sign Out</h3>
-          <p className="text-xs text-rose-700 font-medium mt-0.5">End your current session on this device securely.</p>
+          <h3 className="font-black text-base text-rose-100 tracking-tight">Sign Out</h3>
+          <p className="text-xs text-rose-300 font-medium mt-0.5">End your current session on this device securely.</p>
         </div>
         <button
           id="settings-logout-btn"
           onClick={logout}
-          className="flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs px-6 py-2.5 rounded-full transition-all shadow-xs self-start sm:self-auto active:scale-95"
+          className="flex items-center gap-2 bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs px-6 py-2.5 rounded-full transition-all shadow-xs self-start sm:self-auto active:scale-95"
         >
           <LogOut className="w-3.5 h-3.5" />
           <span>Sign Out</span>
