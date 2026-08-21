@@ -1,0 +1,6 @@
+{
+  "name": "TaskFlow - Task Management",
+  "description": "A modern, full-stack task management web application with authentication, real-time sync, task analytics, priority matrices, and filtering.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
