@@ -1,4 +1,10 @@
-import { Task, TaskStats, User, TaskFilterOptions, AuthResponse } from '../types';
+import {
+  Task,
+  TaskStats,
+  User,
+  TaskFilterOptions,
+  AuthResponse
+} from '../types';
 
 const API_BASE = '/api';
 
@@ -8,10 +14,13 @@ const DEFAULT_FALLBACK_TASKS: Task[] = [
     id: 'task-fallback-1',
     userId: 'demo-user',
     title: 'Review Q3 Project Milestones',
-    description: 'Coordinate with design and engineering leads to align on deliverables.',
+    description:
+      'Coordinate with design and engineering leads to align on deliverables.',
     priority: 'High',
     status: 'In Progress',
-    dueDate: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+    dueDate: new Date(Date.now() + 86400000)
+      .toISOString()
+      .split('T')[0],
     category: 'Work',
     createdAt: new Date(Date.now() - 3600000 * 24).toISOString(),
     updatedAt: new Date().toISOString(),
@@ -20,10 +29,13 @@ const DEFAULT_FALLBACK_TASKS: Task[] = [
     id: 'task-fallback-2',
     userId: 'demo-user',
     title: 'Prepare Board Presentation Deck',
-    description: 'Include core product engagement metrics and upcoming feature rollout roadmap.',
+    description:
+      'Include core product engagement metrics and upcoming feature rollout roadmap.',
     priority: 'High',
     status: 'Pending',
-    dueDate: new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0],
+    dueDate: new Date(Date.now() + 86400000 * 2)
+      .toISOString()
+      .split('T')[0],
     category: 'Management',
     createdAt: new Date(Date.now() - 3600000 * 12).toISOString(),
     updatedAt: new Date().toISOString(),
@@ -32,7 +44,8 @@ const DEFAULT_FALLBACK_TASKS: Task[] = [
     id: 'task-fallback-3',
     userId: 'demo-user',
     title: 'Audit Security Credentials & Tokens',
-    description: 'Ensure all team members have multi-factor authentication enabled.',
+    description:
+      'Ensure all team members have multi-factor authentication enabled.',
     priority: 'Medium',
     status: 'Completed',
     dueDate: new Date().toISOString().split('T')[0],
@@ -45,10 +58,13 @@ const DEFAULT_FALLBACK_TASKS: Task[] = [
     id: 'task-fallback-4',
     userId: 'demo-user',
     title: 'Plan Weekly Team Sync & Retro',
-    description: 'Organize agenda for Friday retrospective and sprint planning.',
+    description:
+      'Organize agenda for Friday retrospective and sprint planning.',
     priority: 'Low',
     status: 'Pending',
-    dueDate: new Date(Date.now() + 86400000 * 4).toISOString().split('T')[0],
+    dueDate: new Date(Date.now() + 86400000 * 4)
+      .toISOString()
+      .split('T')[0],
     category: 'Personal',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -62,13 +78,27 @@ class ApiService {
     return localStorage.getItem('taskflow_token');
   }
 
+  // Check whether the application is running on GitHub Pages
+  private isGitHubPages(): boolean {
+    return (
+      typeof window !== 'undefined' &&
+      window.location.hostname.endsWith('github.io')
+    );
+  }
+
   // Helper to get local tasks
   private getLocalTasks(): Task[] {
     const data = localStorage.getItem('taskflow_static_tasks');
+
     if (!data) {
-      localStorage.setItem('taskflow_static_tasks', JSON.stringify(DEFAULT_FALLBACK_TASKS));
+      localStorage.setItem(
+        'taskflow_static_tasks',
+        JSON.stringify(DEFAULT_FALLBACK_TASKS)
+      );
+
       return DEFAULT_FALLBACK_TASKS;
     }
+
     try {
       return JSON.parse(data);
     } catch {
@@ -77,15 +107,37 @@ class ApiService {
   }
 
   private saveLocalTasks(tasks: Task[]): void {
-    localStorage.setItem('taskflow_static_tasks', JSON.stringify(tasks));
+    localStorage.setItem(
+      'taskflow_static_tasks',
+      JSON.stringify(tasks)
+    );
   }
 
-  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  private async request<T>(
+    endpoint: string,
+    options: RequestInit = {}
+  ): Promise<T> {
+    /*
+     * GitHub Pages is a static hosting service.
+     * It cannot run the Express backend from server.ts.
+     *
+     * Therefore, when the application is deployed to:
+     * yashaschandru583-glitch.github.io
+     *
+     * we immediately use the localStorage fallback instead
+     * of trying to call /api.
+     */
+    if (this.isGitHubPages()) {
+      this.isServerAvailable = false;
+      throw new Error('SERVER_OFFLINE');
+    }
+
     if (this.isServerAvailable === false) {
       throw new Error('SERVER_OFFLINE');
     }
 
     const token = this.getToken();
+
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       ...(options.headers as Record<string, string>),
@@ -101,14 +153,20 @@ class ApiService {
         headers,
       });
 
-      // Check if response is HTML (often returned as 404 fallback on static hosts)
+      // Check if response is HTML
+      // This often happens when an API request is sent to a static host.
       const contentType = response.headers.get('content-type');
-      if (contentType && contentType.includes('text/html')) {
+
+      if (
+        contentType &&
+        contentType.includes('text/html')
+      ) {
         this.isServerAvailable = false;
         throw new Error('SERVER_OFFLINE');
       }
 
       let data: any;
+
       try {
         data = await response.json();
       } catch {
@@ -116,199 +174,532 @@ class ApiService {
       }
 
       if (!response.ok) {
-        if (response.status === 404 && endpoint.startsWith('/tasks')) {
+        /*
+         * Treat common static-host/API errors as offline so that
+         * the localStorage fallback can be used.
+         */
+        if (
+          response.status === 404 ||
+          response.status === 405 ||
+          response.status === 502 ||
+          response.status === 503
+        ) {
           this.isServerAvailable = false;
           throw new Error('SERVER_OFFLINE');
         }
-        const errorMsg = data?.error || `Request failed with status ${response.status}`;
+
+        const errorMsg =
+          data?.error ||
+          `Request failed with status ${response.status}`;
+
         throw new Error(errorMsg);
       }
 
       this.isServerAvailable = true;
+
       return data as T;
     } catch (err: any) {
-      if (err.message === 'SERVER_OFFLINE' || err.name === 'TypeError' || err.message?.includes('Failed to fetch')) {
+      if (
+        err.message === 'SERVER_OFFLINE' ||
+        err.name === 'TypeError' ||
+        err.message?.includes('Failed to fetch')
+      ) {
         this.isServerAvailable = false;
         throw new Error('SERVER_OFFLINE');
       }
+
       throw err;
     }
   }
 
-  // --- AUTH ENDPOINTS WITH FALLBACK ---
-  public async register(payload: { name: string; email: string; password: string; confirmPassword?: string }): Promise<AuthResponse> {
+  // --------------------------------------------------
+  // AUTH ENDPOINTS WITH FALLBACK
+  // --------------------------------------------------
+
+  public async register(payload: {
+    name: string;
+    email: string;
+    password: string;
+    confirmPassword?: string;
+  }): Promise<AuthResponse> {
     try {
-      return await this.request<AuthResponse>('/auth/register', {
-        method: 'POST',
-        body: JSON.stringify(payload),
-      });
+      return await this.request<AuthResponse>(
+        '/auth/register',
+        {
+          method: 'POST',
+          body: JSON.stringify(payload),
+        }
+      );
     } catch (err: any) {
       if (err.message === 'SERVER_OFFLINE') {
         const dummyUser: User = {
           id: 'user-' + Date.now(),
           name: payload.name,
           email: payload.email,
-          avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(payload.name)}`,
+          avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(
+            payload.name
+          )}`,
           createdAt: new Date().toISOString(),
         };
+
         const token = 'static-token-' + Date.now();
-        localStorage.setItem('taskflow_static_user', JSON.stringify(dummyUser));
-        return { message: 'Account created', token, user: dummyUser };
-      }
-      throw err;
-    }
-  }
 
-  public async login(payload: { email: string; password: string }): Promise<AuthResponse> {
-    try {
-      return await this.request<AuthResponse>('/auth/login', {
-        method: 'POST',
-        body: JSON.stringify(payload),
-      });
-    } catch (err: any) {
-      if (err.message === 'SERVER_OFFLINE') {
-        const savedUserStr = localStorage.getItem('taskflow_static_user');
-        const savedUser = savedUserStr ? JSON.parse(savedUserStr) : null;
-        const user: User = savedUser && savedUser.email === payload.email ? savedUser : {
-          id: 'demo-user-1',
-          name: payload.email.split('@')[0] || 'Alex Morgan',
-          email: payload.email,
-          avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-          createdAt: new Date().toISOString(),
+        localStorage.setItem(
+          'taskflow_static_user',
+          JSON.stringify(dummyUser)
+        );
+
+        localStorage.setItem(
+          'taskflow_token',
+          token
+        );
+
+        return {
+          message: 'Account created',
+          token,
+          user: dummyUser,
         };
-        const token = 'static-token-demo';
-        localStorage.setItem('taskflow_static_user', JSON.stringify(user));
-        return { message: 'Signed in successfully', token, user };
       }
+
       throw err;
     }
   }
 
-  public async logout(): Promise<{ message: string }> {
+  public async login(payload: {
+    email: string;
+    password: string;
+  }): Promise<AuthResponse> {
     try {
-      return await this.request<{ message: string }>('/auth/logout', { method: 'POST' });
-    } catch {
-      return { message: 'Logged out' };
+      return await this.request<AuthResponse>(
+        '/auth/login',
+        {
+          method: 'POST',
+          body: JSON.stringify(payload),
+        }
+      );
+    } catch (err: any) {
+      if (err.message === 'SERVER_OFFLINE') {
+        const savedUserStr =
+          localStorage.getItem('taskflow_static_user');
+
+        const savedUser = savedUserStr
+          ? JSON.parse(savedUserStr)
+          : null;
+
+        const user: User =
+          savedUser &&
+          savedUser.email === payload.email
+            ? savedUser
+            : {
+                id: 'demo-user-1',
+                name:
+                  payload.email.split('@')[0] ||
+                  'Alex Morgan',
+                email: payload.email,
+                avatar:
+                  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+                createdAt:
+                  new Date().toISOString(),
+              };
+
+        const token =
+          'static-token-demo';
+
+        localStorage.setItem(
+          'taskflow_static_user',
+          JSON.stringify(user)
+        );
+
+        localStorage.setItem(
+          'taskflow_token',
+          token
+        );
+
+        return {
+          message: 'Signed in successfully',
+          token,
+          user,
+        };
+      }
+
+      throw err;
     }
   }
 
-  public async getCurrentUser(): Promise<{ user: User }> {
+  public async logout(): Promise<{
+    message: string;
+  }> {
     try {
-      return await this.request<{ user: User }>('/auth/me');
+      const response =
+        await this.request<{ message: string }>(
+          '/auth/logout',
+          {
+            method: 'POST',
+          }
+        );
+
+      localStorage.removeItem(
+        'taskflow_token'
+      );
+
+      localStorage.removeItem(
+        'taskflow_static_user'
+      );
+
+      return response;
+    } catch {
+      localStorage.removeItem(
+        'taskflow_token'
+      );
+
+      localStorage.removeItem(
+        'taskflow_static_user'
+      );
+
+      return {
+        message: 'Logged out',
+      };
+    }
+  }
+
+  public async getCurrentUser(): Promise<{
+    user: User;
+  }> {
+    try {
+      return await this.request<{ user: User }>(
+        '/auth/me'
+      );
     } catch (err: any) {
       if (err.message === 'SERVER_OFFLINE') {
-        const savedUserStr = localStorage.getItem('taskflow_static_user') || localStorage.getItem('taskflow_user');
+        const savedUserStr =
+          localStorage.getItem(
+            'taskflow_static_user'
+          ) ||
+          localStorage.getItem(
+            'taskflow_user'
+          );
+
         if (savedUserStr) {
-          return { user: JSON.parse(savedUserStr) };
+          return {
+            user: JSON.parse(savedUserStr),
+          };
         }
+
         const defaultUser: User = {
           id: 'demo-user-1',
           name: 'Alex Morgan',
           email: 'alex@example.com',
-          avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-          createdAt: new Date().toISOString(),
+          avatar:
+            'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+          createdAt:
+            new Date().toISOString(),
         };
-        return { user: defaultUser };
+
+        return {
+          user: defaultUser,
+        };
       }
+
       throw err;
     }
   }
 
-  public async updateProfile(payload: { name?: string; avatar?: string; currentPassword?: string; newPassword?: string }): Promise<{ user: User; message: string }> {
+  public async updateProfile(payload: {
+    name?: string;
+    avatar?: string;
+    currentPassword?: string;
+    newPassword?: string;
+  }): Promise<{
+    user: User;
+    message: string;
+  }> {
     try {
-      return await this.request<{ user: User; message: string }>('/auth/profile', {
+      return await this.request<{
+        user: User;
+        message: string;
+      }>('/auth/profile', {
         method: 'PUT',
         body: JSON.stringify(payload),
       });
     } catch (err: any) {
       if (err.message === 'SERVER_OFFLINE') {
-        const current = (await this.getCurrentUser()).user;
+        const current =
+          (await this.getCurrentUser()).user;
+
         const updated: User = {
           ...current,
-          name: payload.name || current.name,
-          avatar: payload.avatar || current.avatar,
+          name:
+            payload.name || current.name,
+          avatar:
+            payload.avatar || current.avatar,
         };
-        localStorage.setItem('taskflow_static_user', JSON.stringify(updated));
-        return { user: updated, message: 'Profile updated' };
+
+        localStorage.setItem(
+          'taskflow_static_user',
+          JSON.stringify(updated)
+        );
+
+        return {
+          user: updated,
+          message: 'Profile updated',
+        };
       }
+
       throw err;
     }
   }
 
-  // --- TASK ENDPOINTS WITH FALLBACK ---
-  public async getTasks(filters?: Partial<TaskFilterOptions>): Promise<{ tasks: Task[]; total: number }> {
+  // --------------------------------------------------
+  // TASK ENDPOINTS WITH FALLBACK
+  // --------------------------------------------------
+
+  public async getTasks(
+    filters?: Partial<TaskFilterOptions>
+  ): Promise<{
+    tasks: Task[];
+    total: number;
+  }> {
     try {
       const params = new URLSearchParams();
+
       if (filters) {
-        if (filters.search) params.append('search', filters.search);
-        if (filters.status && filters.status !== 'All') params.append('status', filters.status);
-        if (filters.priority && filters.priority !== 'All') params.append('priority', filters.priority);
-        if (filters.category && filters.category !== 'All') params.append('category', filters.category);
-        if (filters.sortBy) params.append('sortBy', filters.sortBy);
-        if (filters.sortOrder) params.append('sortOrder', filters.sortOrder);
+        if (filters.search) {
+          params.append(
+            'search',
+            filters.search
+          );
+        }
+
+        if (
+          filters.status &&
+          filters.status !== 'All'
+        ) {
+          params.append(
+            'status',
+            filters.status
+          );
+        }
+
+        if (
+          filters.priority &&
+          filters.priority !== 'All'
+        ) {
+          params.append(
+            'priority',
+            filters.priority
+          );
+        }
+
+        if (
+          filters.category &&
+          filters.category !== 'All'
+        ) {
+          params.append(
+            'category',
+            filters.category
+          );
+        }
+
+        if (filters.sortBy) {
+          params.append(
+            'sortBy',
+            filters.sortBy
+          );
+        }
+
+        if (filters.sortOrder) {
+          params.append(
+            'sortOrder',
+            filters.sortOrder
+          );
+        }
       }
 
-      const qs = params.toString() ? `?${params.toString()}` : '';
-      return await this.request<{ tasks: Task[]; total: number }>(`/tasks${qs}`);
+      const qs =
+        params.toString()
+          ? `?${params.toString()}`
+          : '';
+
+      return await this.request<{
+        tasks: Task[];
+        total: number;
+      }>(`/tasks${qs}`);
     } catch (err: any) {
       if (err.message === 'SERVER_OFFLINE') {
-        let tasks = this.getLocalTasks();
-        const todayStr = new Date().toISOString().split('T')[0];
+        let tasks =
+          this.getLocalTasks();
+
+        const todayStr =
+          new Date()
+            .toISOString()
+            .split('T')[0];
 
         if (filters) {
           if (filters.search) {
-            const s = filters.search.toLowerCase();
-            tasks = tasks.filter(t => t.title.toLowerCase().includes(s) || (t.description && t.description.toLowerCase().includes(s)));
+            const s =
+              filters.search.toLowerCase();
+
+            tasks = tasks.filter(
+              t =>
+                t.title
+                  .toLowerCase()
+                  .includes(s) ||
+                (t.description &&
+                  t.description
+                    .toLowerCase()
+                    .includes(s))
+            );
           }
-          if (filters.status && filters.status !== 'All') {
-            if (filters.status === 'Overdue') {
-              tasks = tasks.filter(t => t.dueDate < todayStr && t.status !== 'Completed');
+
+          if (
+            filters.status &&
+            filters.status !== 'All'
+          ) {
+            if (
+              filters.status ===
+              'Overdue'
+            ) {
+              tasks = tasks.filter(
+                t =>
+                  t.dueDate <
+                    todayStr &&
+                  t.status !==
+                    'Completed'
+              );
             } else {
-              tasks = tasks.filter(t => t.status === filters.status);
+              tasks = tasks.filter(
+                t =>
+                  t.status ===
+                  filters.status
+              );
             }
           }
-          if (filters.priority && filters.priority !== 'All') {
-            tasks = tasks.filter(t => t.priority === filters.priority);
+
+          if (
+            filters.priority &&
+            filters.priority !== 'All'
+          ) {
+            tasks = tasks.filter(
+              t =>
+                t.priority ===
+                filters.priority
+            );
           }
-          if (filters.category && filters.category !== 'All') {
-            tasks = tasks.filter(t => t.category === filters.category);
+
+          if (
+            filters.category &&
+            filters.category !== 'All'
+          ) {
+            tasks = tasks.filter(
+              t =>
+                t.category ===
+                filters.category
+            );
           }
         }
 
-        return { tasks, total: tasks.length };
+        return {
+          tasks,
+          total: tasks.length,
+        };
       }
+
       throw err;
     }
   }
 
   public async getTaskStats(): Promise<TaskStats> {
     try {
-      return await this.request<TaskStats>('/tasks/stats');
+      return await this.request<TaskStats>(
+        '/tasks/stats'
+      );
     } catch (err: any) {
       if (err.message === 'SERVER_OFFLINE') {
-        const tasks = this.getLocalTasks();
-        const todayStr = new Date().toISOString().split('T')[0];
+        const tasks =
+          this.getLocalTasks();
+
+        const todayStr =
+          new Date()
+            .toISOString()
+            .split('T')[0];
 
         let pending = 0;
         let inProgress = 0;
         let completed = 0;
         let overdue = 0;
-        const priorityCounts: { High: number; Medium: number; Low: number } = { High: 0, Medium: 0, Low: 0 };
-        const categoryCounts: Record<string, number> = {};
+
+        const priorityCounts: {
+          High: number;
+          Medium: number;
+          Low: number;
+        } = {
+          High: 0,
+          Medium: 0,
+          Low: 0,
+        };
+
+        const categoryCounts: Record<
+          string,
+          number
+        > = {};
 
         tasks.forEach(t => {
-          if (t.status === 'Pending') pending++;
-          if (t.status === 'In Progress') inProgress++;
-          if (t.status === 'Completed') completed++;
-          if (t.dueDate < todayStr && t.status !== 'Completed') overdue++;
-          if (t.priority in priorityCounts) priorityCounts[t.priority as keyof typeof priorityCounts]++;
+          if (
+            t.status === 'Pending'
+          ) {
+            pending++;
+          }
+
+          if (
+            t.status ===
+            'In Progress'
+          ) {
+            inProgress++;
+          }
+
+          if (
+            t.status === 'Completed'
+          ) {
+            completed++;
+          }
+
+          if (
+            t.dueDate <
+              todayStr &&
+            t.status !==
+              'Completed'
+          ) {
+            overdue++;
+          }
+
+          if (
+            t.priority in
+            priorityCounts
+          ) {
+            priorityCounts[
+              t.priority as keyof typeof priorityCounts
+            ]++;
+          }
+
           if (t.category) {
-            categoryCounts[t.category] = (categoryCounts[t.category] || 0) + 1;
+            categoryCounts[t.category] =
+              (categoryCounts[
+                t.category
+              ] || 0) + 1;
           }
         });
 
-        const total = tasks.length;
-        const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
+        const total =
+          tasks.length;
+
+        const completionRate =
+          total > 0
+            ? Math.round(
+                (completed /
+                  total) *
+                  100
+              )
+            : 0;
 
         return {
           total,
@@ -321,20 +712,37 @@ class ApiService {
           categoryCounts,
         };
       }
+
       throw err;
     }
   }
 
-  public async getTaskById(id: string): Promise<{ task: Task }> {
+  public async getTaskById(
+    id: string
+  ): Promise<{ task: Task }> {
     try {
-      return await this.request<{ task: Task }>(`/tasks/${id}`);
+      return await this.request<{
+        task: Task;
+      }>(`/tasks/${id}`);
     } catch (err: any) {
       if (err.message === 'SERVER_OFFLINE') {
-        const tasks = this.getLocalTasks();
-        const task = tasks.find(t => t.id === id);
-        if (!task) throw new Error('Task not found');
+        const tasks =
+          this.getLocalTasks();
+
+        const task =
+          tasks.find(
+            t => t.id === id
+          );
+
+        if (!task) {
+          throw new Error(
+            'Task not found'
+          );
+        }
+
         return { task };
       }
+
       throw err;
     }
   }
@@ -346,109 +754,234 @@ class ApiService {
     status: string;
     dueDate: string;
     category?: string;
-  }): Promise<{ message: string; task: Task }> {
+  }): Promise<{
+    message: string;
+    task: Task;
+  }> {
     try {
-      return await this.request<{ message: string; task: Task }>('/tasks', {
+      return await this.request<{
+        message: string;
+        task: Task;
+      }>('/tasks', {
         method: 'POST',
         body: JSON.stringify(task),
       });
     } catch (err: any) {
       if (err.message === 'SERVER_OFFLINE') {
-        const tasks = this.getLocalTasks();
+        const tasks =
+          this.getLocalTasks();
+
         const newTask: Task = {
           id: 'task-' + Date.now(),
           userId: 'demo-user',
           title: task.title,
-          description: task.description || '',
-          priority: task.priority as any,
-          status: task.status as any,
+          description:
+            task.description || '',
+          priority:
+            task.priority as any,
+          status:
+            task.status as any,
           dueDate: task.dueDate,
-          category: task.category || 'General',
-          completedAt: task.status === 'Completed' ? new Date().toISOString() : undefined,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
+          category:
+            task.category || 'General',
+          completedAt:
+            task.status ===
+            'Completed'
+              ? new Date().toISOString()
+              : undefined,
+          createdAt:
+            new Date().toISOString(),
+          updatedAt:
+            new Date().toISOString(),
         };
+
         tasks.unshift(newTask);
-        this.saveLocalTasks(tasks);
-        return { message: 'Task created', task: newTask };
+
+        this.saveLocalTasks(
+          tasks
+        );
+
+        return {
+          message:
+            'Task created',
+          task: newTask,
+        };
       }
+
       throw err;
     }
   }
 
   public async updateTask(
     id: string,
-    updates: Partial<Omit<Task, 'id' | 'userId' | 'createdAt'>>
-  ): Promise<{ message: string; task: Task }> {
+    updates: Partial<
+      Omit<
+        Task,
+        'id' |
+        'userId' |
+        'createdAt'
+      >
+    >
+  ): Promise<{
+    message: string;
+    task: Task;
+  }> {
     try {
-      return await this.request<{ message: string; task: Task }>(`/tasks/${id}`, {
+      return await this.request<{
+        message: string;
+        task: Task;
+      }>(`/tasks/${id}`, {
         method: 'PUT',
         body: JSON.stringify(updates),
       });
     } catch (err: any) {
       if (err.message === 'SERVER_OFFLINE') {
-        const tasks = this.getLocalTasks();
-        const index = tasks.findIndex(t => t.id === id);
-        if (index === -1) throw new Error('Task not found');
+        const tasks =
+          this.getLocalTasks();
+
+        const index =
+          tasks.findIndex(
+            t => t.id === id
+          );
+
+        if (index === -1) {
+          throw new Error(
+            'Task not found'
+          );
+        }
 
         const updated: Task = {
           ...tasks[index],
           ...updates,
-          completedAt: updates.status === 'Completed' ? new Date().toISOString() : (updates.status ? undefined : tasks[index].completedAt),
-          updatedAt: new Date().toISOString(),
+          completedAt:
+            updates.status ===
+            'Completed'
+              ? new Date().toISOString()
+              : updates.status
+              ? undefined
+              : tasks[index]
+                  .completedAt,
+          updatedAt:
+            new Date().toISOString(),
         };
-        tasks[index] = updated;
-        this.saveLocalTasks(tasks);
-        return { message: 'Task updated', task: updated };
+
+        tasks[index] =
+          updated;
+
+        this.saveLocalTasks(
+          tasks
+        );
+
+        return {
+          message:
+            'Task updated',
+          task: updated,
+        };
       }
+
       throw err;
     }
   }
 
-  public async updateTaskStatus(id: string, status: string): Promise<{ message: string; task: Task }> {
+  public async updateTaskStatus(
+    id: string,
+    status: string
+  ): Promise<{
+    message: string;
+    task: Task;
+  }> {
     try {
-      return await this.request<{ message: string; task: Task }>(`/tasks/${id}/status`, {
+      return await this.request<{
+        message: string;
+        task: Task;
+      }>(`/tasks/${id}/status`, {
         method: 'PATCH',
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({
+          status,
+        }),
       });
     } catch (err: any) {
       if (err.message === 'SERVER_OFFLINE') {
-        return this.updateTask(id, { status: status as any });
+        return this.updateTask(
+          id,
+          {
+            status:
+              status as any,
+          }
+        );
       }
+
       throw err;
     }
   }
 
-  public async deleteTask(id: string): Promise<{ message: string; id: string }> {
+  public async deleteTask(
+    id: string
+  ): Promise<{
+    message: string;
+    id: string;
+  }> {
     try {
-      return await this.request<{ message: string; id: string }>(`/tasks/${id}`, {
+      return await this.request<{
+        message: string;
+        id: string;
+      }>(`/tasks/${id}`, {
         method: 'DELETE',
       });
     } catch (err: any) {
       if (err.message === 'SERVER_OFFLINE') {
-        const tasks = this.getLocalTasks();
-        const filtered = tasks.filter(t => t.id !== id);
-        this.saveLocalTasks(filtered);
-        return { message: 'Task deleted', id };
+        const tasks =
+          this.getLocalTasks();
+
+        const filtered =
+          tasks.filter(
+            t => t.id !== id
+          );
+
+        this.saveLocalTasks(
+          filtered
+        );
+
+        return {
+          message:
+            'Task deleted',
+          id,
+        };
       }
+
       throw err;
     }
   }
 
-  public async seedSampleTasks(): Promise<{ message: string; count: number }> {
+  public async seedSampleTasks(): Promise<{
+    message: string;
+    count: number;
+  }> {
     try {
-      return await this.request<{ message: string; count: number }>('/tasks/seed', {
+      return await this.request<{
+        message: string;
+        count: number;
+      }>('/tasks/seed', {
         method: 'POST',
       });
     } catch (err: any) {
       if (err.message === 'SERVER_OFFLINE') {
-        this.saveLocalTasks(DEFAULT_FALLBACK_TASKS);
-        return { message: 'Tasks seeded', count: DEFAULT_FALLBACK_TASKS.length };
+        this.saveLocalTasks(
+          DEFAULT_FALLBACK_TASKS
+        );
+
+        return {
+          message:
+            'Tasks seeded',
+          count:
+            DEFAULT_FALLBACK_TASKS.length,
+        };
       }
+
       throw err;
     }
   }
 }
 
-export const api = new ApiService();
-
+export const api =
+  new ApiService();
